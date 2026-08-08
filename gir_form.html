@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Main Island Creek V.F.D. — General Incident Report</title>
+<style>
+  :root{
+    --bg: #0b0f0d;
+    --panel: #121712;
+    --panel-2: #171e17;
+    --line: #2a3630;
+    --amber: #ffb400;
+    --amber-dim: #a87c1f;
+    --green: #4ade80;
+    --red: #ff4d4d;
+    --text: #d8e3d6;
+    --text-dim: #8ea28f;
+    --mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background: var(--bg); color: var(--text); font-family: var(--sans); }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(255,180,0,0.05), transparent 40%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    padding: 0 0 60px 0;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+
+  /* Console header */
+  .console {
+    background: linear-gradient(180deg, #10150f, #0b0f0b);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .console-top {
+    display:flex; justify-content:space-between; align-items:baseline; max-width:880px; margin:0 auto;
+    font-family: var(--mono); font-size: 11px; color: var(--amber-dim); letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .console-top .dot { color: var(--green); }
+  .dept-name {
+    max-width:880px; margin: 6px auto 0; font-family: var(--mono); font-size: clamp(18px,4.2vw,26px);
+    color: var(--amber); letter-spacing: 0.03em; display:flex; align-items:center; gap:10px;
+  }
+  .dept-sub { max-width:880px; margin: 2px auto 0; font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+  .cursor { display:inline-block; width:9px; height:16px; background: var(--amber); animation: blink 1.1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .section-head {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--amber); background: var(--panel-2); padding: 10px 14px; border-bottom: 1px solid var(--line);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-head .idx { color: var(--amber-dim); }
+  .section-body { padding: 16px 14px 18px; }
+
+  .grid { display: grid; gap: 12px; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  label { display:block; font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+  input[type=text], input[type=date], input[type=time], input[type=number], select, textarea {
+    width: 100%; background: #0d120e; border: 1px solid var(--line); color: var(--text);
+    padding: 9px 10px; border-radius: 4px; font-family: var(--sans); font-size: 14.5px;
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--amber-dim); box-shadow: 0 0 0 3px rgba(255,180,0,0.12); }
+  textarea { min-height: 76px; resize: vertical; font-family: var(--sans); }
+  .field { margin-bottom: 12px; }
+
+  /* toggle group - dispatch console style */
+  .toggles { display:flex; flex-wrap: wrap; gap: 8px; }
+  .toggle {
+    font-family: var(--mono); font-size: 12.5px; padding: 7px 12px; border-radius: 4px;
+    border: 1px solid var(--line); background: #0d120e; color: var(--text-dim); cursor: pointer;
+    user-select: none; transition: all .12s;
+  }
+  .toggle:hover { border-color: var(--amber-dim); }
+  .toggle.active { background: rgba(255,180,0,0.12); border-color: var(--amber); color: var(--amber); }
+  .toggle.single.active { background: rgba(74,222,128,0.12); border-color: var(--green); color: var(--green); }
+
+  /* incident type selector */
+  .type-picker { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px){ .type-picker{ grid-template-columns: 1fr; } }
+  .type-preview {
+    margin-top: 10px; font-family: var(--mono); font-size: 13px; padding: 10px 12px;
+    background: #0d120e; border: 1px dashed var(--line); border-radius: 4px; color: var(--text-dim);
+  }
+  .type-preview.filled { color: var(--amber); border-color: var(--amber-dim); border-style: solid; }
+  .type-preview .lbl { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; display:block; margin-bottom: 3px; }
+
+  .dispatched-note { font-size: 11.5px; color: var(--text-dim); margin-top: 6px; font-family: var(--mono); }
+
+  .btnrow { display:flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  button { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 12px 18px; border-radius: 4px; border: 1px solid var(--line); background: #0d120e; color: var(--text); cursor: pointer; }
+  button.primary { background: var(--amber); color: #14180f; border-color: var(--amber); font-weight: 600; }
+  button.primary:hover { background: #ffc233; }
+  button:hover { border-color: var(--amber-dim); }
+  button.ghost { background: transparent; }
+  button.danger:hover { border-color: var(--red); color: var(--red); }
+
+  .status-msg { font-family: var(--mono); font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+  .status-msg.ok { color: var(--green); }
+  .status-msg.err { color: var(--red); }
+
+  .saved-list { margin-top: 10px; }
+  .saved-item {
+    display:flex; justify-content:space-between; align-items:center; gap: 10px;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px;
+    background: #0d120e; font-family: var(--mono); font-size: 12.5px;
+  }
+  .saved-item .meta { color: var(--text-dim); }
+  .saved-item .meta b { color: var(--text); }
+  .saved-actions button { padding: 6px 10px; font-size: 11px; }
+
+  .footer-note { text-align:center; color: var(--text-dim); font-family: var(--mono); font-size: 11px; margin-top: 24px; }
+
+  .roster-row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom: 12px; }
+  .roster-row .field { margin-bottom:0; flex: 1 1 140px; }
+  .roster-chip-list { display:flex; flex-wrap:wrap; gap:8px; }
+  .roster-chip {
+    display:flex; align-items:center; gap:8px; font-family: var(--mono); font-size: 12px;
+    padding: 6px 10px; border-radius: 4px; border: 1px solid var(--line); background:#0d120e; color: var(--text);
+  }
+  .roster-chip button { padding: 2px 7px; font-size: 10px; border-radius: 3px; }
+
+  /* hidden print sheet - only shown when printing */
+  #printArea { display:none; }
+  @media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { display:block; position: absolute; left:0; top:0; width:100%; }
+  }
+  .ph-sheet {
+    background:#fff; color:#000; font-family: Georgia, "Times New Roman", serif; padding: 24px 30px;
+    font-size: 12.5px; line-height: 1.4;
+  }
+  .ph-sheet h1 { text-align:center; font-size: 18px; margin: 0 0 2px; }
+  .ph-sheet .ph-sub { text-align:center; font-size: 11px; margin: 0 0 2px; }
+  .ph-sheet .ph-title { text-align:center; font-weight:bold; font-size: 14px; margin: 10px 0 2px; }
+  .ph-sheet .ph-note { text-align:center; font-size:10.5px; font-style:italic; margin-bottom: 10px; text-decoration: underline; }
+  .ph-box { border: 1px solid #000; margin-top: -1px; }
+  .ph-row { display:flex; border-bottom: 1px solid #000; }
+  .ph-row:last-child { border-bottom: none; }
+  .ph-cell { flex:1; padding: 5px 8px; border-right: 1px solid #000; }
+  .ph-cell:last-child { border-right: none; }
+  .ph-cell .ph-label { font-size: 9.5px; text-transform: uppercase; letter-spacing:0.03em; display:block; }
+  .ph-cell .ph-value { font-size: 12.5px; font-weight: 600; margin-top:2px; min-height: 14px; }
+  .ph-block { border: 1px solid #000; border-top: none; padding: 8px; }
+  .ph-block .ph-label { font-size: 9.5px; text-transform: uppercase; }
+  .ph-block .ph-value { white-space: pre-wrap; margin-top: 4px; min-height: 30px; }
+  .ph-personnel { font-size: 11.5px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="console">
+  <div class="console-top">
+    <span><span class="dot">●</span> UNIT DATA TERMINAL</span>
+    <span id="clock">--:--:--</span>
+  </div>
+  <div class="dept-name">MAIN ISLAND CREEK V.F.D.<span class="cursor"></span></div>
+  <div class="dept-sub">P.O. Box 570, Omar, WV 25638 · GENERAL INCIDENT REPORT (GIR) · Dept ID 23104</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ROSTER -->
+  <div class="section">
+    <div class="section-head"><span class="idx">☰</span> Department Roster</div>
+    <div class="section-body">
+      <div class="roster-row">
+        <div class="field"><label>Name</label><input type="text" id="rosterName" placeholder="Last, First"></div>
+        <div class="field"><label>Rank</label><input type="text" id="rosterRank" placeholder="FF / Lt / Capt / Chief"></div>
+        <button type="button" id="addRosterBtn" style="padding:9px 16px;">+ Add</button>
+      </div>
+      <div class="roster-chip-list" id="rosterChipList">
+        <div style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">No roster members yet — add crew above.</div>
+      </div>
+      <div class="dispatched-note" style="margin-top:8px;">Roster is shared across the department — anyone using this form sees the same list.</div>
+    </div>
+  </div>
+
+  <!-- 01 INCIDENT INFO -->
+  <div class="section">
+    <div class="section-head"><span class="idx">01</span> Incident Info</div>
+    <div class="section-body">
+      <div class="grid grid-4">
+        <div class="field"><label>Incident #</label><input type="text" id="incidentNum" placeholder="24-0001"></div>
+        <div class="field"><label>Exposure #</label><input type="text" id="expNum" placeholder="0"></div>
+        <div class="field"><label>Date</label><input type="date" id="incidentDate"></div>
+        <div class="field"><label>Day of Wk</label><input type="text" id="dayOfWeek" readonly></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 TIMES -->
+  <div class="section">
+    <div class="section-head"><span class="idx">02</span> Times</div>
+    <div class="section-body">
+      <div class="grid grid-4">
+        <div class="field"><label>Alarm Time (24hr)</label><input type="text" inputmode="numeric" class="mil-time" id="tAlarm" placeholder="14:32" maxlength="5"></div>
+        <div class="field"><label>Enroute Time (24hr)</label><input type="text" inputmode="numeric" class="mil-time" id="tEnroute" placeholder="14:34" maxlength="5"></div>
+        <div class="field"><label>Arrival Time (24hr)</label><input type="text" inputmode="numeric" class="mil-time" id="tArrival" placeholder="14:41" maxlength="5"></div>
+        <div class="field"><label>In Service Time (24hr)</label><input type="text" inputmode="numeric" class="mil-time" id="tInService" placeholder="15:20" maxlength="5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 WEATHER -->
+  <div class="section">
+    <div class="section-head"><span class="idx">03</span> Weather</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Conditions</label>
+        <div class="toggles" id="weatherToggles">
+          <div class="toggle single" data-val="Sunny">Sunny</div>
+          <div class="toggle single" data-val="Clear">Clear</div>
+          <div class="toggle single" data-val="Cloudy">Cloudy</div>
+          <div class="toggle single" data-val="Rainy">Rainy</div>
+          <div class="toggle single" data-val="Snow/Ice">Snow/Ice</div>
+        </div>
+      </div>
+      <div class="field" style="max-width:160px;"><label>Temperature (°F)</label><input type="number" id="temperature" placeholder="68"></div>
+    </div>
+  </div>
+
+  <!-- 04 INCIDENT TYPE (NERIS) -->
+  <div class="section">
+    <div class="section-head"><span class="idx">04</span> Incident Type — NERIS</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Dispatched As (what we were toned for)</label>
+        <select id="dispatchedType"></select>
+        <div class="dispatched-note">NERIS keeps dispatched type and final type separate — this doesn't have to match what you found.</div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Final Type — What Was Actually Found</label>
+        <div class="type-picker">
+          <div>
+            <label style="font-size:10px;">Group</label>
+            <select id="finalGroup"></select>
+          </div>
+          <div>
+            <label style="font-size:10px;">Type</label>
+            <select id="finalType"><option value="">— select group first —</option></select>
+          </div>
+        </div>
+        <div class="type-preview" id="typePreview"><span class="lbl">Final NERIS Code</span>Not yet selected</div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <button type="button" class="ghost" id="addSecondaryBtn">+ Add Additional Final Type</button>
+        <div id="secondaryTypeWrap"></div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Situation / Action Narrative</label>
+        <textarea id="narrative" placeholder="Explain type of situation found and action taken..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 LOCATION -->
+  <div class="section">
+    <div class="section-head"><span class="idx">05</span> Location</div>
+    <div class="section-body">
+      <div class="field"><label>Actual Address of Incident</label><input type="text" id="address"></div>
+      <div class="grid grid-3">
+        <div class="field"><label>City</label><input type="text" id="city"></div>
+        <div class="field"><label>State</label><input type="text" id="state" value="WV"></div>
+        <div class="field"><label>Zip</label><input type="text" id="zip"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 MUTUAL AID -->
+  <div class="section">
+    <div class="section-head"><span class="idx">06</span> Mutual Aid</div>
+    <div class="section-body">
+      <div class="grid grid-2">
+        <div class="field"><label>Received From</label><input type="text" id="aidFrom"></div>
+        <div class="field"><label>Given To</label><input type="text" id="aidTo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 ASSISTANCE / METHOD OF ALARM -->
+  <div class="section">
+    <div class="section-head"><span class="idx">07</span> Assistance &amp; Method of Alarm</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Assistance on Scene</label>
+        <div class="toggles" id="assistanceToggles">
+          <div class="toggle" data-val="Police">Police</div>
+          <div class="toggle" data-val="Ambulance">Ambulance</div>
+          <div class="toggle" data-val="Other">Other</div>
+        </div>
+      </div>
+      <div class="field"><label>Who (agency/unit)</label><input type="text" id="assistWho"></div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Method of Alarm</label>
+        <div class="toggles" id="methodToggles">
+          <div class="toggle single" data-val="Telephone to F.D.">Telephone to F.D.</div>
+          <div class="toggle single" data-val="Private Alarm">Private Alarm</div>
+          <div class="toggle single" data-val="Radio">Radio</div>
+          <div class="toggle single" data-val="Voice">Voice</div>
+          <div class="toggle single" data-val="911 Center">911 Center</div>
+        </div>
+      </div>
+      <div class="field" style="max-width:160px; margin-top:12px;"><label>No. of Alarms</label><input type="number" id="numAlarms" placeholder="1"></div>
+    </div>
+  </div>
+
+  <!-- 08 RESOURCES -->
+  <div class="section">
+    <div class="section-head"><span class="idx">08</span> Resources</div>
+    <div class="section-body">
+      <div class="field">
+        <label>Personnel Responding (tap all who went)</label>
+        <div class="toggles" id="personnelToggles">
+          <div style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">Add members to the roster above to check them in here.</div>
+        </div>
+      </div>
+      <div class="grid grid-4">
+        <div class="field"><label>No. Personnel</label><input type="number" id="numPersonnel"></div>
+        <div class="field"><label>No. Engines</label><input type="number" id="numEngines"></div>
+        <div class="field"><label>No. Aerials</label><input type="number" id="numAerials"></div>
+        <div class="field"><label>No. Other Vehicles</label><input type="number" id="numOtherVeh"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 CASUALTIES -->
+  <div class="section">
+    <div class="section-head"><span class="idx">09</span> Injuries &amp; Fatalities</div>
+    <div class="section-body">
+      <div class="grid grid-4">
+        <div class="field"><label>Injuries — Fire Svc</label><input type="number" id="injFire"></div>
+        <div class="field"><label>Injuries — Other</label><input type="number" id="injOther"></div>
+        <div class="field"><label>Fatalities — Fire Svc</label><input type="number" id="fatFire"></div>
+        <div class="field"><label>Fatalities — Other</label><input type="number" id="fatOther"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 SIGN OFF -->
+  <div class="section">
+    <div class="section-head"><span class="idx">10</span> Sign-Off</div>
+    <div class="section-body">
+      <div class="grid grid-2">
+        <div>
+          <div class="field"><label>Officer in Charge — Name</label><input type="text" id="oicName"></div>
+          <div class="field"><label>Rank</label><input type="text" id="oicRank"></div>
+        </div>
+        <div>
+          <div class="field"><label>Member Making Report — Name</label><input type="text" id="reporterName"></div>
+          <div class="field"><label>Rank</label><input type="text" id="reporterRank"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btnrow">
+    <button class="primary" id="saveBtn">Save Report</button>
+    <button class="ghost" id="clearBtn">Clear Form</button>
+    <button class="ghost" id="copyBtn">Copy as Text</button>
+    <button class="ghost" id="printBtn">Print / Save as PDF (B&amp;W)</button>
+    <button class="ghost" id="driveBtn">Download for Drive</button>
+  </div>
+  <div class="status-msg" id="statusMsg"></div>
+
+  <!-- SAVED REPORTS -->
+  <div class="section" style="margin-top:28px;">
+    <div class="section-head"><span class="idx">✓</span> Saved Reports (this device)</div>
+    <div class="section-body">
+      <div class="btnrow" style="margin-top:0;">
+        <button class="ghost" id="exportMonthBtn">Download This Month for Drive</button>
+      </div>
+      <div class="status-msg" id="monthStatusMsg"></div>
+      <div class="saved-list" id="savedList"><div style="color:var(--text-dim); font-family:var(--mono); font-size:12.5px;">No reports saved yet.</div></div>
+    </div>
+  </div>
+
+  <div class="footer-note">MAIN ISLAND CREEK V.F.D. // GIR TERMINAL v1.0 — NERIS-aligned incident typing</div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+// ---------- NERIS incident type data ----------
+const NERIS_TYPES = {
+  "FIRE": [
+    ["STRUCTURE_FIRE","STRUCTURAL_INVOLVEMENT_FIRE","Structural Involvement Fire"],
+    ["STRUCTURE_FIRE","CONFINED_FIRE","Confined Fire (cooking/chimney)"],
+    ["VEHICLE_FIRE","CAR_FIRE","Car Fire"],
+    ["VEHICLE_FIRE","ELECTRIC_VEHICLE_FIRE","Electric Vehicle Fire"],
+    ["WILDLAND_FIRE","GRASS_FIRE","Grass / Wildland Fire"],
+    ["OTHER_FIRE","DUMPSTER_FIRE","Dumpster / Outside Fire"]
+  ],
+  "MEDICAL": [
+    ["ILLNESS","CARDIAC_ARREST","Cardiac Arrest (CPR in progress)"],
+    ["INJURY","TRAUMATIC_INJURY","Traumatic Injury"],
+    ["INJURY","OTHER_TRAUMATIC_INJURY","Other Traumatic Injury"],
+    ["INJURY","MOTOR_VEHICLE_COLLISION","MVC with Injury / Transport"]
+  ],
+  "HAZSIT": [
+    ["HAZARD_MATERIAL","GAS_LEAK","Gas Leak (confirmed)"],
+    ["HAZARD_MATERIAL","FUEL_SPILL","Fuel Spill"],
+    ["HAZARD_NONCHEM","MOTOR_VEHICLE_COLLISION","MVC — No Injury"],
+    ["HAZARD_NONCHEM","POWER_LINE_DOWN","Power Line Down"],
+    ["HAZARD_NONCHEM","TREE_DOWN","Tree Down / Roadway Blocked"],
+    ["INVESTIGATION","SMOKE_INVESTIGATION","Smoke Investigation"],
+    ["INVESTIGATION","GAS_ODOR","Gas Odor (unconfirmed)"]
+  ],
+  "RESCUE": [
+    ["TRANSPORTATION","MOTOR_VEHICLE_EXTRICATION_ENTRAPPED","MVC — Extrication / Entrapment"],
+    ["OUTSIDE","ATV_RESCUE","ATV Rescue"],
+    ["WATER_RESCUE","SWIFT_WATER","Swift Water Rescue"],
+    ["CONFINED_SPACE","INDUSTRIAL","Confined Space Rescue"],
+    ["HIGH_ANGLE","CLIFF_RESCUE","High Angle / Cliff Rescue"],
+    ["HIGH_ANGLE","LOW_ANGLE_RESCUE","Low Angle Rescue"]
+  ],
+  "PUBLIC_SERVICE": [
+    ["","LIFT_ASSIST","Lift Assist"],
+    ["ASSISTANCE","ASSIST_EMS","Assist EMS Crew"],
+    ["ASSISTANCE","MOTORIST_ASSIST","Motorist Assist"],
+    ["ALARMS","SMOKE_ALARM_ACTIVATION","Smoke Alarm Activation"],
+    ["ALARMS","CO_ALARM","CO Alarm Activation"],
+    ["","LOST_PERSON","Lost Person Search"],
+    ["","WEATHER_RESPONSE","Weather Response"],
+    ["","PERSON_IN_DISTRESS","Person in Distress / Welfare Check"]
+  ],
+  "NO_EMERGENCY": [
+    ["FALSE_ALARM","MALICIOUS","False Alarm — Malicious"],
+    ["FALSE_ALARM","ACCIDENTAL","False Alarm — Accidental"],
+    ["GOOD_INTENT","CANCELLED","Cancelled En Route"],
+    ["GOOD_INTENT","WRONG_LOCATION","Wrong Location"]
+  ]
+};
+
+function codeString(group, sub, type){
+  return sub ? `${group} / ${sub} / ${type}` : `${group} / ${type}`;
+}
+
+// populate dispatched dropdown (flat list of all types)
+const dispatchedSel = document.getElementById('dispatchedType');
+dispatchedSel.innerHTML = '<option value="">— select —</option>';
+Object.keys(NERIS_TYPES).forEach(group=>{
+  const og = document.createElement('optgroup');
+  og.label = group;
+  NERIS_TYPES[group].forEach(([sub,type,label])=>{
+    const opt = document.createElement('option');
+    opt.value = codeString(group,sub,type);
+    opt.textContent = label;
+    og.appendChild(opt);
+  });
+  dispatchedSel.appendChild(og);
+});
+
+// populate final group dropdown
+const finalGroupSel = document.getElementById('finalGroup');
+finalGroupSel.innerHTML = '<option value="">— select —</option>' + Object.keys(NERIS_TYPES).map(g=>`<option value="${g}">${g}</option>`).join('');
+
+const finalTypeSel = document.getElementById('finalType');
+const typePreview = document.getElementById('typePreview');
+
+function updateFinalTypeOptions(){
+  const g = finalGroupSel.value;
+  if(!g){ finalTypeSel.innerHTML = '<option value="">— select group first —</option>'; updatePreview(); return; }
+  finalTypeSel.innerHTML = '<option value="">— select —</option>' + NERIS_TYPES[g].map(([sub,type,label])=>{
+    const code = codeString(g,sub,type);
+    return `<option value="${code}">${label}</option>`;
+  }).join('');
+  updatePreview();
+}
+function updatePreview(){
+  if(finalTypeSel.value){
+    typePreview.classList.add('filled');
+    typePreview.innerHTML = '<span class="lbl">Final NERIS Code</span>' + finalTypeSel.value;
+  } else {
+    typePreview.classList.remove('filled');
+    typePreview.innerHTML = '<span class="lbl">Final NERIS Code</span>Not yet selected';
+  }
+}
+finalGroupSel.addEventListener('change', updateFinalTypeOptions);
+finalTypeSel.addEventListener('change', updatePreview);
+
+// secondary final type (NERIS allows multiple final types)
+let secondaryCount = 0;
+document.getElementById('addSecondaryBtn').addEventListener('click', ()=>{
+  secondaryCount++;
+  const wrap = document.getElementById('secondaryTypeWrap');
+  const div = document.createElement('div');
+  div.className = 'type-picker';
+  div.style.marginTop = '10px';
+  div.innerHTML = `
+    <div><label style="font-size:10px;">Additional Group</label><select class="sec-group"></select></div>
+    <div><label style="font-size:10px;">Additional Type</label><select class="sec-type"><option value="">— select group first —</option></select></div>
+  `;
+  wrap.appendChild(div);
+  const secGroup = div.querySelector('.sec-group');
+  const secType = div.querySelector('.sec-type');
+  secGroup.innerHTML = '<option value="">— select —</option>' + Object.keys(NERIS_TYPES).map(g=>`<option value="${g}">${g}</option>`).join('');
+  secGroup.addEventListener('change', ()=>{
+    const g = secGroup.value;
+    if(!g){ secType.innerHTML = '<option value="">— select group first —</option>'; return; }
+    secType.innerHTML = '<option value="">— select —</option>' + NERIS_TYPES[g].map(([sub,type,label])=>{
+      const code = codeString(g,sub,type);
+      return `<option value="${code}">${label}</option>`;
+    }).join('');
+  });
+});
+
+// ---------- roster (localStorage — works once hosted standalone) ----------
+let ROSTER = [];
+
+function loadRoster(){
+  try{
+    const raw = localStorage.getItem('roster:list');
+    ROSTER = raw ? JSON.parse(raw) : [];
+  } catch(e){
+    ROSTER = [];
+  }
+  renderRosterChips();
+  renderPersonnelChecklist();
+}
+
+function saveRoster(){
+  try{
+    localStorage.setItem('roster:list', JSON.stringify(ROSTER));
+  } catch(e){
+    showStatus('Could not save roster: ' + e.message, false);
+  }
+}
+
+function renderRosterChips(){
+  const el = document.getElementById('rosterChipList');
+  if(ROSTER.length === 0){
+    el.innerHTML = '<div style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">No roster members yet — add crew above.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  ROSTER.forEach((m, i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'roster-chip';
+    chip.innerHTML = `<span>${m.name}${m.rank ? ' — ' + m.rank : ''}</span><button type="button" class="danger" data-i="${i}">×</button>`;
+    chip.querySelector('button').addEventListener('click', ()=>{
+      ROSTER.splice(i,1);
+      saveRoster();
+      renderRosterChips();
+      renderPersonnelChecklist();
+    });
+    el.appendChild(chip);
+  });
+}
+
+function renderPersonnelChecklist(){
+  const el = document.getElementById('personnelToggles');
+  if(ROSTER.length === 0){
+    el.innerHTML = '<div style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">Add members to the roster above to check them in here.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  ROSTER.forEach(m=>{
+    const t = document.createElement('div');
+    t.className = 'toggle';
+    t.dataset.val = m.name;
+    t.textContent = m.name;
+    t.addEventListener('click', ()=>{
+      t.classList.toggle('active');
+      syncPersonnelCount();
+    });
+    el.appendChild(t);
+  });
+}
+
+function syncPersonnelCount(){
+  const count = document.querySelectorAll('#personnelToggles .toggle.active').length;
+  const field = document.getElementById('numPersonnel');
+  if(count > 0) field.value = count;
+}
+
+document.getElementById('addRosterBtn').addEventListener('click', ()=>{
+  const nameEl = document.getElementById('rosterName');
+  const rankEl = document.getElementById('rosterRank');
+  const name = nameEl.value.trim();
+  if(!name) return;
+  ROSTER.push({ name, rank: rankEl.value.trim() });
+  ROSTER.sort((a,b)=>a.name.localeCompare(b.name));
+  saveRoster();
+  renderRosterChips();
+  renderPersonnelChecklist();
+  nameEl.value = ''; rankEl.value = '';
+  nameEl.focus();
+});
+
+// ---------- toggle groups ----------
+function setupToggleGroup(id){
+  const container = document.getElementById(id);
+  container.querySelectorAll('.toggle').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      if(t.classList.contains('single')){
+        container.querySelectorAll('.toggle').forEach(o=>o.classList.remove('active'));
+        t.classList.add('active');
+      } else {
+        t.classList.toggle('active');
+      }
+    });
+  });
+}
+setupToggleGroup('weatherToggles');
+setupToggleGroup('assistanceToggles');
+setupToggleGroup('methodToggles');
+
+function getToggleValues(id){
+  return Array.from(document.querySelectorAll(`#${id} .toggle.active`)).map(t=>t.dataset.val);
+}
+function setToggleValues(id, values){
+  document.querySelectorAll(`#${id} .toggle`).forEach(t=>{
+    t.classList.toggle('active', values && values.includes(t.dataset.val));
+  });
+}
+
+// ---------- military time input mask ----------
+document.querySelectorAll('.mil-time').forEach(input=>{
+  input.addEventListener('input', (e)=>{
+    let digits = e.target.value.replace(/\D/g,'').slice(0,4);
+    if(digits.length >= 3){
+      e.target.value = digits.slice(0,2) + ':' + digits.slice(2);
+    } else {
+      e.target.value = digits;
+    }
+  });
+  input.addEventListener('blur', (e)=>{
+    const v = e.target.value;
+    const m = v.match(/^(\d{1,2}):?(\d{2})$/);
+    if(!m){ if(v) e.target.style.borderColor = 'var(--red)'; return; }
+    let hh = parseInt(m[1],10), mm = parseInt(m[2],10);
+    if(hh > 23 || mm > 59){ e.target.style.borderColor = 'var(--red)'; return; }
+    e.target.value = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+    e.target.style.borderColor = '';
+  });
+});
+
+// ---------- date / day-of-week / clock ----------
+const dateInput = document.getElementById('incidentDate');
+const dayInput = document.getElementById('dayOfWeek');
+function syncDayOfWeek(){
+  if(!dateInput.value){ dayInput.value=''; return; }
+  const d = new Date(dateInput.value + 'T12:00:00');
+  dayInput.value = d.toLocaleDateString('en-US', { weekday: 'long' });
+}
+dateInput.addEventListener('change', syncDayOfWeek);
+const today = new Date();
+dateInput.value = today.toISOString().slice(0,10);
+syncDayOfWeek();
+
+function tickClock(){
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12:false });
+}
+tickClock(); setInterval(tickClock, 1000);
+
+// ---------- gather / populate form data ----------
+function gatherFormData(){
+  const secondaryTypes = Array.from(document.querySelectorAll('.sec-type')).map(s=>s.value).filter(Boolean);
+  return {
+    incidentNum: document.getElementById('incidentNum').value,
+    expNum: document.getElementById('expNum').value,
+    incidentDate: document.getElementById('incidentDate').value,
+    dayOfWeek: document.getElementById('dayOfWeek').value,
+    times: {
+      alarm: document.getElementById('tAlarm').value,
+      enroute: document.getElementById('tEnroute').value,
+      arrival: document.getElementById('tArrival').value,
+      inService: document.getElementById('tInService').value,
+    },
+    weather: getToggleValues('weatherToggles'),
+    temperature: document.getElementById('temperature').value,
+    personnelResponding: getToggleValues('personnelToggles'),
+    dispatchedType: document.getElementById('dispatchedType').value,
+    finalType: finalTypeSel.value,
+    secondaryTypes: secondaryTypes,
+    narrative: document.getElementById('narrative').value,
+    address: document.getElementById('address').value,
+    city: document.getElementById('city').value,
+    state: document.getElementById('state').value,
+    zip: document.getElementById('zip').value,
+    aidFrom: document.getElementById('aidFrom').value,
+    aidTo: document.getElementById('aidTo').value,
+    assistance: getToggleValues('assistanceToggles'),
+    assistWho: document.getElementById('assistWho').value,
+    methodOfAlarm: getToggleValues('methodToggles'),
+    numAlarms: document.getElementById('numAlarms').value,
+    resources: {
+      personnel: document.getElementById('numPersonnel').value,
+      engines: document.getElementById('numEngines').value,
+      aerials: document.getElementById('numAerials').value,
+      otherVeh: document.getElementById('numOtherVeh').value,
+    },
+    casualties: {
+      injFire: document.getElementById('injFire').value,
+      injOther: document.getElementById('injOther').value,
+      fatFire: document.getElementById('fatFire').value,
+      fatOther: document.getElementById('fatOther').value,
+    },
+    oicName: document.getElementById('oicName').value,
+    oicRank: document.getElementById('oicRank').value,
+    reporterName: document.getElementById('reporterName').value,
+    reporterRank: document.getElementById('reporterRank').value,
+    savedAt: new Date().toISOString()
+  };
+}
+
+function formatAsText(data){
+  const lines = [
+    `MAIN ISLAND CREEK V.F.D. — GENERAL INCIDENT REPORT`,
+    `Incident #: ${data.incidentNum || '—'}   Exp #: ${data.expNum || '—'}   Date: ${data.incidentDate || '—'} (${data.dayOfWeek || '—'})`,
+    ``,
+    `TIMES — Alarm: ${data.times.alarm||'—'}  Enroute: ${data.times.enroute||'—'}  Arrival: ${data.times.arrival||'—'}  In Service: ${data.times.inService||'—'}`,
+    `WEATHER — ${data.weather.join(', ')||'—'}   Temp: ${data.temperature||'—'}°F`,
+    ``,
+    `DISPATCHED AS: ${data.dispatchedType || '—'}`,
+    `FINAL TYPE: ${data.finalType || '—'}`,
+    data.secondaryTypes.length ? `ADDITIONAL FINAL TYPES: ${data.secondaryTypes.join(' | ')}` : '',
+    `NARRATIVE: ${data.narrative || '—'}`,
+    ``,
+    `LOCATION: ${data.address||'—'}, ${data.city||'—'}, ${data.state||'—'} ${data.zip||'—'}`,
+    `MUTUAL AID — Received: ${data.aidFrom||'—'}   Given: ${data.aidTo||'—'}`,
+    `ASSISTANCE: ${data.assistance.join(', ')||'—'}   Who: ${data.assistWho||'—'}`,
+    `METHOD OF ALARM: ${data.methodOfAlarm.join(', ')||'—'}   No. Alarms: ${data.numAlarms||'—'}`,
+    ``,
+    `RESOURCES — Personnel: ${data.resources.personnel||0}  Engines: ${data.resources.engines||0}  Aerials: ${data.resources.aerials||0}  Other: ${data.resources.otherVeh||0}`,
+    `CASUALTIES — Injuries (FD): ${data.casualties.injFire||0}  Injuries (Other): ${data.casualties.injOther||0}  Fatalities (FD): ${data.casualties.fatFire||0}  Fatalities (Other): ${data.casualties.fatOther||0}`,
+    ``,
+    `Officer in Charge: ${data.oicName||'—'} (${data.oicRank||'—'})`,
+    `Member Making Report: ${data.reporterName||'—'} (${data.reporterRank||'—'})`
+  ].filter(l => l !== '');
+  return lines.join('\n');
+}
+
+// ---------- storage (localStorage — works once hosted standalone) ----------
+const statusMsg = document.getElementById('statusMsg');
+function showStatus(msg, ok=true){
+  statusMsg.textContent = msg;
+  statusMsg.className = 'status-msg ' + (ok ? 'ok' : 'err');
+  setTimeout(()=>{ statusMsg.textContent=''; }, 4000);
+}
+
+function saveReport(){
+  const data = gatherFormData();
+  if(!data.incidentNum){
+    showStatus('Enter an Incident # before saving.', false);
+    return;
+  }
+  const key = `gir:${data.incidentNum}`;
+  try{
+    localStorage.setItem(key, JSON.stringify(data));
+    showStatus(`Saved incident ${data.incidentNum}.`, true);
+    loadSavedList();
+  } catch(e){
+    showStatus('Storage error: ' + e.message, false);
+  }
+}
+
+function getAllReportKeys(){
+  const keys = [];
+  for(let i=0; i<localStorage.length; i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith('gir:')) keys.push(k);
+  }
+  return keys;
+}
+
+function loadSavedList(){
+  const listEl = document.getElementById('savedList');
+  const keys = getAllReportKeys();
+  if(keys.length === 0){
+    listEl.innerHTML = '<div style="color:var(--text-dim); font-family:var(--mono); font-size:12.5px;">No reports saved yet.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  for(const key of keys){
+    try{
+      const d = JSON.parse(localStorage.getItem(key));
+      const row = document.createElement('div');
+      row.className = 'saved-item';
+      row.innerHTML = `
+        <div class="meta"><b>#${d.incidentNum}</b> — ${d.incidentDate||'no date'} — ${d.finalType || 'type not set'}</div>
+        <div class="saved-actions">
+          <button type="button" data-key="${key}" class="loadBtn">Load</button>
+          <button type="button" data-key="${key}" class="delBtn danger">Delete</button>
+        </div>
+      `;
+      listEl.appendChild(row);
+    } catch(e){}
+  }
+  listEl.querySelectorAll('.loadBtn').forEach(b=>b.addEventListener('click', ()=>loadReport(b.dataset.key)));
+  listEl.querySelectorAll('.delBtn').forEach(b=>b.addEventListener('click', ()=>deleteReport(b.dataset.key)));
+}
+
+function loadReport(key){
+  try{
+    const d = JSON.parse(localStorage.getItem(key));
+    if(!d) return;
+    document.getElementById('incidentNum').value = d.incidentNum||'';
+    document.getElementById('expNum').value = d.expNum||'';
+    document.getElementById('incidentDate').value = d.incidentDate||'';
+    syncDayOfWeek();
+    document.getElementById('tAlarm').value = d.times?.alarm||'';
+    document.getElementById('tEnroute').value = d.times?.enroute||'';
+    document.getElementById('tArrival').value = d.times?.arrival||'';
+    document.getElementById('tInService').value = d.times?.inService||'';
+    setToggleValues('weatherToggles', d.weather);
+    document.getElementById('temperature').value = d.temperature||'';
+    setToggleValues('personnelToggles', d.personnelResponding);
+    dispatchedSel.value = d.dispatchedType||'';
+    if(d.finalType){
+      const group = d.finalType.split(' / ')[0];
+      finalGroupSel.value = group;
+      updateFinalTypeOptions();
+      finalTypeSel.value = d.finalType;
+      updatePreview();
+    }
+    document.getElementById('narrative').value = d.narrative||'';
+    document.getElementById('address').value = d.address||'';
+    document.getElementById('city').value = d.city||'';
+    document.getElementById('state').value = d.state||'';
+    document.getElementById('zip').value = d.zip||'';
+    document.getElementById('aidFrom').value = d.aidFrom||'';
+    document.getElementById('aidTo').value = d.aidTo||'';
+    setToggleValues('assistanceToggles', d.assistance);
+    document.getElementById('assistWho').value = d.assistWho||'';
+    setToggleValues('methodToggles', d.methodOfAlarm);
+    document.getElementById('numAlarms').value = d.numAlarms||'';
+    document.getElementById('numPersonnel').value = d.resources?.personnel||'';
+    document.getElementById('numEngines').value = d.resources?.engines||'';
+    document.getElementById('numAerials').value = d.resources?.aerials||'';
+    document.getElementById('numOtherVeh').value = d.resources?.otherVeh||'';
+    document.getElementById('injFire').value = d.casualties?.injFire||'';
+    document.getElementById('injOther').value = d.casualties?.injOther||'';
+    document.getElementById('fatFire').value = d.casualties?.fatFire||'';
+    document.getElementById('fatOther').value = d.casualties?.fatOther||'';
+    document.getElementById('oicName').value = d.oicName||'';
+    document.getElementById('oicRank').value = d.oicRank||'';
+    document.getElementById('reporterName').value = d.reporterName||'';
+    document.getElementById('reporterRank').value = d.reporterRank||'';
+    showStatus(`Loaded incident ${d.incidentNum}.`, true);
+    window.scrollTo({top:0, behavior:'smooth'});
+  } catch(e){
+    showStatus('Could not load report.', false);
+  }
+}
+
+function deleteReport(key){
+  try{
+    localStorage.removeItem(key);
+    showStatus('Report deleted.', true);
+    loadSavedList();
+  } catch(e){
+    showStatus('Delete failed.', false);
+  }
+}
+
+// ---------- printable B&W sheet (matches original paper GIR layout) ----------
+function generatePrintHTML(d){
+  const personnelList = (d.personnelResponding && d.personnelResponding.length)
+    ? d.personnelResponding.join(', ') : '—';
+  return `
+  <div class="ph-sheet">
+    <h1>Main Island Creek V.F.D.</h1>
+    <div class="ph-sub">P.O. Box 570 Omar, WV 25638</div>
+    <div class="ph-sub">(304) 946-2749 voice / (304) 946-2769</div>
+    <div class="ph-title">General Incident Report</div>
+    <div class="ph-note">Complete for all Incidents</div>
+
+    <div class="ph-box">
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">Fire Dept. I.D. #</span><span class="ph-value">23104</span></div>
+        <div class="ph-cell"><span class="ph-label">Incident #</span><span class="ph-value">${d.incidentNum||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Exp. #</span><span class="ph-value">${d.expNum||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Date</span><span class="ph-value">${d.incidentDate||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Day of Wk</span><span class="ph-value">${d.dayOfWeek||''}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">Alarm Time</span><span class="ph-value">${d.times.alarm||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Enroute Time</span><span class="ph-value">${d.times.enroute||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Arrival Time</span><span class="ph-value">${d.times.arrival||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">In Service Time</span><span class="ph-value">${d.times.inService||''}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell" style="flex:2;"><span class="ph-label">Weather</span><span class="ph-value">${d.weather.join(', ')||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Temperature</span><span class="ph-value">${d.temperature||''}°F</span></div>
+      </div>
+    </div>
+
+    <div class="ph-block">
+      <span class="ph-label">Dispatched As</span>
+      <div class="ph-value" style="min-height:16px;">${d.dispatchedType||'—'}</div>
+    </div>
+    <div class="ph-block">
+      <span class="ph-label">Final NERIS Type(s)</span>
+      <div class="ph-value" style="min-height:16px;">${[d.finalType, ...(d.secondaryTypes||[])].filter(Boolean).join('  |  ') || '—'}</div>
+    </div>
+    <div class="ph-block">
+      <span class="ph-label">Type of Situation Found / Action Taken</span>
+      <div class="ph-value">${(d.narrative||'').replace(/</g,'&lt;')}</div>
+    </div>
+
+    <div class="ph-box">
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">Mutual Aid Received From</span><span class="ph-value">${d.aidFrom||'—'}</span></div>
+        <div class="ph-cell"><span class="ph-label">Mutual Aid Given To</span><span class="ph-value">${d.aidTo||'—'}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell" style="flex:2;">
+          <span class="ph-label">Actual Address of Incident</span>
+          <span class="ph-value">${d.address||''}</span><br>
+          <span class="ph-value">${d.city||''}, ${d.state||''} ${d.zip||''}</span>
+        </div>
+        <div class="ph-cell">
+          <span class="ph-label">Assistance</span>
+          <span class="ph-value">${d.assistance.join(', ')||'—'}</span>
+          <span class="ph-label" style="margin-top:4px;">Who</span>
+          <span class="ph-value">${d.assistWho||'—'}</span>
+        </div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell" style="flex:2;"><span class="ph-label">Method of Alarm</span><span class="ph-value">${d.methodOfAlarm.join(', ')||''}</span></div>
+        <div class="ph-cell"><span class="ph-label">No. of Alarms</span><span class="ph-value">${d.numAlarms||''}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">No. Personnel</span><span class="ph-value">${d.resources.personnel||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">No. Engines</span><span class="ph-value">${d.resources.engines||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">No. Aerials</span><span class="ph-value">${d.resources.aerials||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">No. Other Vehicles</span><span class="ph-value">${d.resources.otherVeh||'0'}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">Injuries Fire Svc</span><span class="ph-value">${d.casualties.injFire||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">Injuries Other</span><span class="ph-value">${d.casualties.injOther||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">Fatalities Fire Svc</span><span class="ph-value">${d.casualties.fatFire||'0'}</span></div>
+        <div class="ph-cell"><span class="ph-label">Fatalities Other</span><span class="ph-value">${d.casualties.fatOther||'0'}</span></div>
+      </div>
+      <div class="ph-row">
+        <div class="ph-cell"><span class="ph-label">Officer in Charge</span><span class="ph-value">${d.oicName||''} ${d.oicRank ? '('+d.oicRank+')' : ''}</span></div>
+        <div class="ph-cell"><span class="ph-label">Member Making Report</span><span class="ph-value">${d.reporterName||''} ${d.reporterRank ? '('+d.reporterRank+')' : ''}</span></div>
+      </div>
+    </div>
+
+    <div class="ph-block">
+      <span class="ph-label">Personnel Responding</span>
+      <div class="ph-personnel">${personnelList}</div>
+    </div>
+  </div>`;
+}
+
+function printReport(){
+  const data = gatherFormData();
+  document.getElementById('printArea').innerHTML = generatePrintHTML(data);
+  window.print();
+}
+document.getElementById('printBtn').addEventListener('click', printReport);
+
+// ---------- file download (works standalone — drop the file into Drive yourself) ----------
+function downloadTextFile(filename, text){
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function driveFileName(d){
+  const safeDate = (d.incidentDate || 'undated').replace(/[^0-9\-]/g,'');
+  const safeNum = (d.incidentNum || 'unnumbered').replace(/[^a-zA-Z0-9\-]/g,'');
+  return `GIR_${safeDate}_${safeNum}.txt`;
+}
+
+document.getElementById('driveBtn').addEventListener('click', ()=>{
+  const data = gatherFormData();
+  if(!data.incidentNum){ showStatus('Enter an Incident # before exporting.', false); return; }
+  downloadTextFile(driveFileName(data), formatAsText(data));
+  showStatus('Downloaded — move this file into your Drive folder.', true);
+});
+
+document.getElementById('exportMonthBtn').addEventListener('click', ()=>{
+  const monthStatus = document.getElementById('monthStatusMsg');
+  const keys = getAllReportKeys();
+  const now = new Date();
+  const ym = now.toISOString().slice(0,7); // YYYY-MM
+  const reports = [];
+  for(const key of keys){
+    const d = JSON.parse(localStorage.getItem(key));
+    if((d.incidentDate||'').startsWith(ym)) reports.push(d);
+  }
+  if(reports.length === 0){
+    monthStatus.textContent = 'No reports found for this month yet.';
+    monthStatus.className = 'status-msg err';
+    return;
+  }
+  const combined = reports.map(d => `===== INCIDENT ${d.incidentNum} =====\n` + formatAsText(d)).join('\n\n');
+  downloadTextFile(`GIR_Monthly_${ym}.txt`, combined);
+  monthStatus.textContent = `Downloaded ${reports.length} report(s) for ${ym} — move into your Drive folder.`;
+  monthStatus.className = 'status-msg ok';
+});
+
+document.getElementById('saveBtn').addEventListener('click', saveReport);
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('Clear all fields on this form?')) location.reload();
+});
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  const text = formatAsText(gatherFormData());
+  try{
+    await navigator.clipboard.writeText(text);
+    showStatus('Report copied to clipboard.', true);
+  } catch(e){
+    showStatus('Copy failed — clipboard not available.', false);
+  }
+});
+
+loadSavedList();
+loadRoster();
+</script>
+</body>
+</html>
